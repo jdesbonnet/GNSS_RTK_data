@@ -1,5 +1,12 @@
 
+
+set terminal pngcairo size 1400,600 background rgb 'black'
+set output "sa_off.png"
+
 set title 'GPS Selective Available (SA) switch off, 2 May 2000' textcolor rgb 'white'
+
+set multiplot layout 1,2 title 'GPS Selective Available (SA) switch off, 2 May 2000'
+
 set xlabel 'Latitude' textcolor rgb 'white'
 set ylabel 'Longitude' textcolor rgb 'white'
 
@@ -12,8 +19,6 @@ set style line 1 linecolor rgb "green"
 set style line 2 linecolor rgb "blue"
 
 
-set terminal pngcairo size 1024,600 background rgb 'black'
-set output "sa_off.png"
 set border lc rgb 'white'
 set key tc rgb 'white'
 
@@ -33,6 +38,24 @@ set label "http://jdesbonnet.blogspot.com" at graph -0.05,-0.10 font ",8" tc rgb
 plot "< gunzip -c gps_sa_off_pre_transition.dat.gz" using 5:4 linecolor rgb "blue"  \
 title 'with SA on' \
 ,"< gunzip -c gps_sa_off_post_transition.dat.gz" using 5:4 linecolor rgb "red"  \
+title 'with SA off' 
+
+## https://stackoverflow.com/questions/639695/how-to-convert-latitude-or-longitude-to-meters
+## m_per_deg_lat = 111132.954 - 559.822 * cos( 2 * latMid ) + 1.175 * cos( 4 * latMid);
+## m_per_deg_lon = 111132.954 * cos ( latMid );
+
+
+PI = 3.14159265359
+ER = 6378137
+refLat = 53.325
+refLon = -6.2596
+klon = 111132.854 * cos(PI*refLat/180) 
+
+set xlabel "meters W/E"
+set ylabel "meters S/N"
+plot "< gunzip -c gps_sa_off_pre_transition.dat.gz" using (($5-refLon)*klon):( ($4-refLat) * 111111) linecolor rgb "blue"  \
+title 'with SA on' \
+,"< gunzip -c gps_sa_off_post_transition.dat.gz" using (($5-refLon)*klon):( ($4-refLat) * 111111) linecolor rgb "red"  \
 title 'with SA off' 
 
 #pause -1 
